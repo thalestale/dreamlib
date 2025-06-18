@@ -15,12 +15,16 @@ jobs:
         # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
         target:
           [
-            { platform: linux, arch: x86_64, os: ubuntu-22.04 },
-            { platform: windows, arch: x86_64, os: windows-latest },
-            { platform: macos, arch: universal, os: macos-latest },
-            { platform: web, arch: wasm32, os: ubuntu-22.04 },
+            { platform: linux, arch: x86_64, os: ubuntu-22.04, type: template_debug, ds: yes, optimization: speed_trace },
+            { platform: windows, arch: x86_64, os: windows-latest, type: template_debug, ds: yes, optimization: speed_trace },
+            { platform: macos, arch: universal, os: macos-latest, type: template_debug, ds: yes, optimization: speed_trace },
+            { platform: web, arch: wasm32, os: ubuntu-22.04, type: template_debug, ds: yes, optimization: speed_trace },
+            { platform: linux, arch: x86_64, os: ubuntu-22.04, type: template_release, ds: no, optimization: speed },
+            { platform: windows, arch: x86_64, os: windows-latest, type: template_release, ds: no, optimization: speed },
+            { platform: macos, arch: universal, os: macos-latest, type: template_release, ds: no, optimization: speed },
+            { platform: web, arch: wasm32, os: ubuntu-22.04, type: template_release, ds: no, optimization: speed },
           ]
-        target-type: [template_debug, template_release]
+        #target-type: [template_debug, template_release]
         float-precision: [single]
 
     runs-on: ${{ matrix.target.os }}
@@ -60,20 +64,20 @@ jobs:
         uses: ./godot-cpp/.github/actions/godot-cache-restore
         with:
           scons-cache: ${{ github.workspace }}/.scons-cache/
-          cache-name: ${{ matrix.target.platform }}_${{ matrix.target.arch }}_${{ matrix.float-precision }}_${{ matrix.target-type }}
+          cache-name: ${{ matrix.target.platform }}_${{ matrix.target.arch }}_${{ matrix.float-precision }}_${{ matrix.target.type }}
 
       - name: Build GDExtension Debug Build
         shell: sh
         env:
           SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
         run: |
-          scons target=${{ matrix.target-type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} precision=${{ matrix.float-precision }} optimize=speed debug_symbols=yes separate_debug_symbols=yes lto=full
+          scons target=${{ matrix.target.type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} precision=${{ matrix.float-precision }} optimize=${{ matrix.target.optimization }} debug_symbols=${{ matrix.target.ds }} lto=full
 
       - name: Save .scons_cache
         uses: ./godot-cpp/.github/actions/godot-cache-save
         with:
           scons-cache: ${{ github.workspace }}/.scons-cache/
-          cache-name: ${{ matrix.target.platform }}_${{ matrix.target.arch }}_${{ matrix.float-precision }}_${{ matrix.target-type }}
+          cache-name: ${{ matrix.target.platform }}_${{ matrix.target.arch }}_${{ matrix.float-precision }}_${{ matrix.target.type }}
 
       # Clean up compilation files
       - name: Windows - Delete compilation files
@@ -86,7 +90,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dreamlib-${{ matrix.target.platform }}-${{ matrix.target.arch }}-${{ matrix.float-precision }}-${{ matrix.target-type }}
+          name: dreamlib-${{ matrix.target.platform }}-${{ matrix.target.arch }}-${{ matrix.float-precision }}-${{ matrix.target.type }}
           path: |
             ${{ github.workspace }}/bin/**
 
