@@ -15,14 +15,14 @@ jobs:
         # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
         target:
           [
-            { platform: linux, arch: x86_64, os: ubuntu-22.04, type: template_debug, ds: yes, optimization: speed_trace },
-            { platform: windows, arch: x86_64, os: windows-latest, type: template_debug, ds: yes, optimization: speed_trace },
-            { platform: macos, arch: universal, os: macos-latest, type: template_debug, ds: yes, optimization: speed_trace },
-            { platform: web, arch: wasm32, os: ubuntu-22.04, type: template_debug, ds: yes, optimization: speed_trace },
-            { platform: linux, arch: x86_64, os: ubuntu-22.04, type: template_release, ds: no, optimization: speed },
-            { platform: windows, arch: x86_64, os: windows-latest, type: template_release, ds: no, optimization: speed },
-            { platform: macos, arch: universal, os: macos-latest, type: template_release, ds: no, optimization: speed },
-            { platform: web, arch: wasm32, os: ubuntu-22.04, type: template_release, ds: no, optimization: speed },
+            { platform: linux, arch: x86_64, os: ubuntu-22.04, type: template_debug, ds: yes, optimization: speed_trace, mingw: no },
+            { platform: windows, arch: x86_64, os: windows-latest, type: template_debug, ds: yes, optimization: speed_trace, mingw: yes },
+            { platform: macos, arch: universal, os: macos-latest, type: template_debug, ds: yes, optimization: speed_trace, mingw: no },
+            { platform: web, arch: wasm32, os: ubuntu-22.04, type: template_debug, ds: yes, optimization: speed_trace, mingw: no },
+            { platform: linux, arch: x86_64, os: ubuntu-22.04, type: template_release, ds: no, optimization: speed, mingw: no },
+            { platform: windows, arch: x86_64, os: windows-latest, type: template_release, ds: no, optimization: speed, mingw: yes },
+            { platform: macos, arch: universal, os: macos-latest, type: template_release, ds: no, optimization: speed, mingw: no },
+            { platform: web, arch: wasm32, os: ubuntu-22.04, type: template_release, ds: no, optimization: speed, mingw: no },
           ]
         #target-type: [template_debug, template_release]
         float-precision: [single]
@@ -71,7 +71,7 @@ jobs:
         env:
           SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
         run: |
-          scons target=${{ matrix.target.type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} precision=${{ matrix.float-precision }} optimize=${{ matrix.target.optimization }} debug_symbols=${{ matrix.target.ds }} lto=full
+          scons target=${{ matrix.target.type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} use_mingw=${{ matrix.target.mingw }} precision=${{ matrix.float-precision }} optimize=${{ matrix.target.optimization }} debug_symbols=${{ matrix.target.ds }} lto=full
 
       - name: Save .scons_cache
         uses: ./godot-cpp/.github/actions/godot-cache-save
