@@ -71,7 +71,7 @@ jobs:
         env:
           SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
         run: |
-          scons target=${{ matrix.target.type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} use_mingw=${{ matrix.target.mingw }} precision=${{ matrix.float-precision }} optimize=${{ matrix.target.optimization }} debug_symbols=${{ matrix.target.ds }} lto=full
+          scons target=${{ matrix.target.type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} use_mingw=${{ matrix.target.mingw }} precision=${{ matrix.float-precision }} optimize=${{ matrix.target.optimization }} debug_symbols=${{ matrix.target.ds }} lto=auto
 
       - name: Save .scons_cache
         uses: ./godot-cpp/.github/actions/godot-cache-save
